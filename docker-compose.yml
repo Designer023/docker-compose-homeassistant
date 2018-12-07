@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+
+  db:
+    restart: always
+    container_name: "homeassistant_database"
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data/pgdata
+    env_file:
+      - ./envs/database.env
+
+  daemon:
+    container_name: "appdaemon"
+    restart: always
+    image: acockburn/appdaemon:latest
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./configs/appdaemon:/conf
+    depends_on:
+      - home_assistant
+    env_file:
+      - ./envs/appdaemon.env
+
+  home_assistant:
+    container_name: "homeassistant"
+    restart: always
+    image: homeassistant/home-assistant
+    ports:
+    - "8123:8123"
+    env_file:
+      - ./envs/homeassistant.env
+    volumes:
+      - ./configs/homeassistant:/config
